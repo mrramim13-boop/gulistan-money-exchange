@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>গুলিস্তান টাকা কেনাবেচা</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            color: #334155; 
+            padding: 15px;
+            min-height: 100vh;
+        }
+
+        header { 
+            background: linear-gradient(90deg, #059669 0%, #10b981 100%); 
+            color: white; 
+            padding: 18px; 
+            text-align: center; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+        }
+
+        .container { 
+            max-width: 480px; 
+            margin: 20px auto; 
+            background: #ffffff; 
+            padding: 20px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #1e293b; }
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; 
+            padding: 10px 12px; 
+            border: 1.5px solid #cbd5e1; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            outline: none;
+            transition: all 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+        }
+
+        .radio-group { display: flex; gap: 15px; }
+        .radio-group label { font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+
+        /* Unique Buttons */
+        .btn-custom { 
+            width: 100%; 
+            background: linear-gradient(135deg, #059669 0%, #047857 100%); 
+            color: white; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+        }
+        .btn-custom:active {
+            transform: translateY(0);
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #334155 0%, #0f172a 100%);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
+        }
+        .btn-danger { 
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .summary-box { 
+            background: #f0fdf4; 
+            border: 1px dashed #34d399; 
+            padding: 12px; 
+            border-radius: 10px; 
+            margin-bottom: 14px; 
+            font-size: 14px; 
+        }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .summary-total { font-weight: bold; color: #047857; border-top: 1px solid #a7f3d0; padding-top: 5px; }
+
+        /* Modal Base */
+        .modal { 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(15, 23, 42, 0.7); 
+            backdrop-filter: blur(4px);
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 100; 
+        }
+        .modal-content { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 16px; 
+            width: 90%; 
+            max-width: 420px; 
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 6 Second Processing Spinner */
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #e2e8f0;
+            border-top: 6px solid #059669;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Animated Checkmark */
+        .checkmark-wrapper {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px auto;
+        }
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 4;
+            stroke: #059669;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #059669;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 4;
+            stroke-miterlimit: 10;
+            stroke: #059669;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        @keyframes stroke { 100% { stroke-dashoffset: 0; } }
+        @keyframes scale { 0%, 100% { transform: none; } 50% { transform: scale3d(1.1, 1.1, 1); } }
+        @keyframes fill { 100% { box-shadow: inset 0px 0px 0px 40px rgba(5, 150, 105, 0.1); } }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; font-size: 12px; }
+        th { background: #059669; color: white; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>গুলিস্তান টাকা ও বৈদেশিক মুদ্রা কেনাবেচা</h2>
+    </header>
+
+    <div class="container">
+        <h3 style="text-align:center; color:#059669; margin-bottom:14px;">গ্রাহকের অর্ডার ফর্ম</h3>
+        
+        <form id="orderForm">
+            <div class="form-group">
+                <label>নোটের অবস্থা:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="condition" value="new" checked onchange="calculate()"> নতুন নোট (১০% কমিশন)</label>
+                    <label><input type="radio" name="condition" value="old" onchange="calculate()"> পুরানো নোট (০% কমিশন)</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>নোটের মান:</label>
+                <select id="noteValue" onchange="calculate()">
+                    <option value="5">৫ টাকা</option>
+                    <option value="10">১০ টাকা</option>
+                    <option value="20">২০ টাকা</option>
+                    <option value="50">৫০ টাকা</option>
+                    <option value="100">১০০ টাকা</option>
+                    <option value="500">৫০০ টাকা</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>পরিমাণ (পিস):</label>
+                <input type="number" id="qty" value="10" min="1" oninput="calculate()" required>
+            </div>
+
+            <div class="summary-box">
+                <div class="summary-row"><span>আসল টাকা:</span><span id="faceValueText">৫০ টাকা</span></div>
+                <div class="summary-row"><span>কমিশন:</span><span id="commissionText">+৫ টাকা</span></div>
+                <div class="summary-row summary-total"><span>মোট পরিশোধ যোগ্য:</span><span id="totalText">৫৫ টাকা</span></div>
+            </div>
+
+            <div class="form-group">
+                <label>মোবাইল নম্বর:</label>
+                <input type="tel" id="phone" placeholder="017XXXXXXXX" required>
+            </div>
+            
+            <div class="form-group">
+                <label>ঠিকানা:</label>
+                <textarea id="address" rows="2" placeholder="আপনার পুরো ঠিকানা লিখুন" required></textarea>
+            </div>
+            
+            <button type="submit" class="btn-custom">অর্ডার কনফার্ম করুন</button>
+        </form>
+        
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
+        <button class="btn-custom btn-admin" onclick="openAdmin()">🔑 অ্যাডমিন প্যানেল</button>
+    </div>
+
+    <!-- Processing Modal -->
+    <div class="modal" id="processModal">
+        <div class="modal-content">
+            <div id="loaderArea">
+                <div class="spinner"></div>
+                <h4 style="color:#059669; font-size:18px;">অর্ডার প্রসেসিং হচ্ছে...</h4>
+                <p style="color:#64748b; font-size:13px; margin-top:6px;">অনুগ্রহ করে ৬ সেকেন্ড অপেক্ষা করুন</p>
+            </div>
+
+            <div id="successArea" style="display: none;">
+                <div class="checkmark-wrapper">
+                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg>
+                </div>
+                <h3 style="color:#059669; font-size:20px;">অর্ডার সফল হয়েছে!</h3>
+                <p style="color:#475569; font-size:14px; margin:8px 0 16px 0;">আপনার অর্ডারটি আমাদের সিস্টেমে সংরক্ষিত হয়েছে।</p>
+                <button class="btn-custom" onclick="closeProcessModal()">ঠিক আছে</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content" style="max-width:650px; text-align:left;">
+            <h3 style="color:#059669; margin-bottom:12px;">⚙️ অ্যাডমিন কন্ট্রোল প্যানেল</h3>
+            
+            <div id="loginArea">
+                <div class="form-group">
+                    <label>ইউজারনেম:</label>
+                    <input type="text" id="authUser">
+                </div>
+                <div class="form-group">
+                    <label>পাসওয়ার্ড:</label>
+                    <input type="password" id="authPass">
+                </div>
+                <button class="btn-custom" onclick="loginAdmin()">লগইন করুন</button>
+                <button class="btn-custom btn-danger" style="margin-top:8px;" onclick="closeAdmin()">বন্ধ করুন</button>
+            </div>
+
+            <div id="dashArea" style="display: none;">
+                <h4>📦 সংরক্ষিত অর্ডার হিস্ট্রি</h4>
+                <div style="overflow-x:auto; margin-top:10px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>আইডি</th>
+                                <th>ধরণ</th>
+                                <th>মান</th>
+                                <th>পরিমাণ</th>
+                                <th>ফোন</th>
+                                <th>ঠিকানা</th>
+                                <th>অ্যাকশন</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderTable"></tbody>
+                    </table>
+                </div>
+                <br>
+                <button class="btn-custom btn-danger" onclick="closeAdmin()">লগআউট ও বন্ধ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var STORAGE_KEY = 'gulistan_orders_v2';
+
+        function getOrders() {
+            var data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveOrders(ordersArray) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(ordersArray));
+        }
+
+        function calculate() {
+            var condition = document.querySelector('input[name="condition"]:checked').value;
+            var noteValue = parseInt(document.getElementById('noteValue').value) || 0;
+            var qty = parseInt(document.getElementById('qty').value) || 0;
+
+            var faceValue = noteValue * qty;
+            var commission = (condition === 'new') ? (faceValue * 0.10) : 0;
+            var total = faceValue + commission;
+
+            document.getElementById('faceValueText').innerText = faceValue + " টাকা";
+            document.getElementById('commissionText').innerText = "+" + commission + " টাকা";
+            document.getElementById('totalText').innerText = total + " টাকা";
+        }
+
+        document.getElementById('orderForm').onsubmit = function(e) {
+            e.preventDefault();
+            
+            // Show Processing Modal
+            document.getElementById('processModal').style.display = 'flex';
+            document.getElementById('loaderArea').style.display = 'block';
+            document.getElementById('successArea').style.display = 'none';
+
+            var condition = document.querySelector('input[name="condition"]:checked').value;
+            var newOrder = {
+                id: Date.now().toString().slice(-4),
+                type: (condition === 'new') ? 'নতুন' : 'পুরানো',
+                val: document.getElementById('noteValue').value + ' ৳',
+                qty: document.getElementById('qty').value + ' পিস',
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value
+            };
+
+            // Exactly 6 Seconds Delay Animation
+            setTimeout(function() {
+                var currentOrders = getOrders();
+                currentOrders.push(newOrder);
+                saveOrders(currentOrders);
+
+                document.getElementById('loaderArea').style.display = 'none';
+                document.getElementById('successArea').style.display = 'block';
+                document.getElementById('orderForm').reset();
+                calculate();
+            }, 6000);
+        };
+
+        function closeProcessModal() {
+            document.getElementById('processModal').style.display = 'none';
+        }
+
+        function openAdmin() {
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('dashArea').style.display = 'none';
+            document.getElementById('loginArea').style.display = 'block';
+            document.getElementById('authUser').value = '';
+            document.getElementById('authPass').value = '';
+        }
+
+        function loginAdmin() {
+            var u = document.getElementById('authUser').value;
+            var p = document.getElementById('authPass').value;
+            
+            if (u === 'admin' && p === 'admin1122') {
+                document.getElementById('loginArea').style.display = 'none';
+                document.getElementById('dashArea').style.display = 'block';
+                renderTable();
+            } else {
+                alert('ভুল ইউজারনেম বা পাসওয়ার্ড!');
+            }
+        }
+
+        function renderTable() {
+            var tbody = document.getElementById('orderTable');
+            tbody.innerHTML = '';
+            var orders = getOrders();
+
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">কোনো অর্ডার পাওয়া যায়নি।</td></tr>';
+                return;
+            }
+
+            for (var i = 0; i < orders.length; i++) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>#' + orders[i].id + '</td>' +
+                    '<td>' + orders[i].type + '</td>' +
+                    '<td>' + orders[i].val + '</td>' +
+                    '<td>' + orders[i].qty + '</td>' +
+                    '<td>' + orders[i].phone + '</td>' +
+                    '<td>' + orders[i].address + '</td>' +
+                    '<td><button style="background:#dc2626; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="deleteOrder(' + i + ')">Delete</button></td>';
+                tbody.appendChild(tr);
+            }
+        }
+
+        function deleteOrder(index) {
+            if (confirm('আপনি কি এই অর্ডারটি মুছে ফেলতে চান?')) {
+                var orders = getOrders();
+                orders.splice(index, 1);
+                saveOrders(orders);
+                renderTable();
+            }
+        }
+
+        calculate();
+    </script>
+</body>
+</html>
